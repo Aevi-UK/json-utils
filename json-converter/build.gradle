@@ -1,0 +1,101 @@
+plugins {
+    id "com.jfrog.bintray" version "1.7.3"
+}
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
+group = 'com.aevi.util'
+version = "${apiVersion}"
+ext.applicationName = "json-converter"
+
+apply from: '../publish-repo.gradle'
+apply from: '../java-provided.gradle'
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    provided domainDependencies.androidMockable
+    compile domainDependencies.gson
+
+    testCompile domainDependencies.androidMockable
+    testCompile testDependencies.junit
+    testCompile testDependencies.mockito
+    testCompile testDependencies.assertJ
+}
+
+javadoc {
+    source = sourceSets.main.allJava
+    destinationDir = file("../javadocs/json-converter")
+    classpath = files(configurations.compile, configurations.provided)
+    title = "Json Converter"
+    options.memberLevel = JavadocMemberLevel.PUBLIC
+}
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
+
+def siteUrl = 'https://github.com/Aevi-UK/json-utils'
+def gitUrl = 'https://github.com/Aevi-UK/json-utils.git'
+
+bintray {
+    configurations = ['archives']
+
+    pkg {
+        repo = 'aevi-uk'
+        name = 'json-converter'
+        userOrg = 'aevi'
+        licenses = ['Apache-2.0']
+        labels = ['java', 'json', 'gson']
+        websiteUrl = siteUrl
+        issueTrackerUrl = 'https://github.com/Aevi-UK/json-utils/issues'
+        vcsUrl = gitUrl
+        publicDownloadNumbers = true
+    }
+}
+
+if (project.hasProperty('bintrayUser') && project.hasProperty('bintrayKey')) {
+    bintray.user = project.bintrayUser
+    bintray.key = project.bintrayKey
+}
+
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                packaging 'jar'
+                name 'JsonConverter'
+                url siteUrl
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'brettwold'
+                        name 'Brett Cherrington'
+                        email 'brett@annalytics.co.uk'
+                    }
+                    developer {
+                        id 'andreas-borglin'
+                        name 'Andreas Borglin'
+                        email 'andreas@jakoon.co.uk'
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+                }
+            }
+        }
+    }
+}
+
+apply from: '../jar-publisher.gradle'
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"

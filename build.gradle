@@ -1,0 +1,25 @@
+version = "1.0.0-SNAPSHOT"
+
+allprojects {
+
+    project.ext {
+        apiVersion = rootProject.version
+    }
+
+    repositories {
+        mavenLocal()
+        jcenter()
+        mavenCentral()
+        google()
+        maven {
+            url "http://sdk-public-artifacts.s3-website-eu-west-1.amazonaws.com/maven2"
+        }
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+    delete 'documentation/public'
+}
+
+apply from: 'dependencies.gradle'
