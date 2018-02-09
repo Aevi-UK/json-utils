@@ -13,6 +13,9 @@
  */
 package com.aevi.util.json;
 
+/**
+ * A marker interface to indicate that the object implementing this interface is serializable to JSON
+ */
 public interface Jsonable {
 
     String toJson();

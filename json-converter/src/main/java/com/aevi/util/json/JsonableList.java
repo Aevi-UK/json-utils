@@ -16,6 +16,10 @@ package com.aevi.util.json;
 import java.util.ArrayList;
 import java.util.Collection;
 
+/**
+ * An extension of {@link ArrayList} that allows serialisation/deserialisation of lists by the {@link JsonConverter}
+ * @param <E> List object type
+ */
 public class JsonableList<E> extends ArrayList<E> implements Jsonable {
 
     public JsonableList() {
