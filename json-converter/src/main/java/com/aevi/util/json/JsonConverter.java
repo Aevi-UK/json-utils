@@ -22,6 +22,11 @@ import com.google.gson.*;
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Type;
 
+/**
+ * This class contains a number of useful serialiser/deserialiser implementations to handle the objects in this library.
+ *
+ * It also contains a serialiser/desrialiser to allow Android {@link Bitmap} objects to be stored in JSON.
+ */
 public final class JsonConverter {
 
     public static String serialize(Jsonable object) {

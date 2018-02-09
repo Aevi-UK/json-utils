@@ -15,6 +15,11 @@ package com.aevi.util.json;
 
 import java.util.HashMap;
 
+/**
+ * An extension of {@link HashMap} that can be serialised/deserialised by the {@link JsonConverter}
+ * @param <K> Key type
+ * @param <V> Value type
+ */
 public class JsonableMap<K, V> extends HashMap<K, V> implements Jsonable {
 
     @Override

@@ -15,6 +15,9 @@ package com.aevi.util.json;
 
 import java.util.UUID;
 
+/**
+ * A concrete implementation of a {@link Sendable}
+ */
 public class SendableId implements Sendable {
 
     private String id;
