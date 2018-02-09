@@ -13,6 +13,13 @@
  */
 package com.aevi.util.json;
 
+/**
+ * A simple extension to the base {@link Jsonable} object to include an id in a JSON object
+ */
 public interface Sendable extends Jsonable {
+
+    /**
+     * @return The Id of this object
+     */
     String getId();
 }

@@ -13,6 +13,12 @@
  */
 package com.aevi.util.json;
 
+/**
+ * This class allows you to store a java Object of any type in JSON and restore it again afterwards to the correct Class type.
+ * <p>
+ * If serialised to JSON the JSON produced contains the objects type (class) in a parameter called `type` and the objects data JSON serialised into
+ * the `value` parameter.
+ */
 public class JsonOption implements Jsonable {
 
     private final Object value;
@@ -28,10 +34,16 @@ public class JsonOption implements Jsonable {
         this.type = forceType;
     }
 
+    /**
+     * @return The source object
+     */
     public Object getValue() {
         return value;
     }
 
+    /**
+     * @return The source objects type/class
+     */
     public String getType() {
         return type;
     }
