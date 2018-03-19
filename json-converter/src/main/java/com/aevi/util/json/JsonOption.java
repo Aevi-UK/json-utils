@@ -29,9 +29,9 @@ public class JsonOption implements Jsonable {
         this.type = value.getClass().getName();
     }
 
-    protected JsonOption(Object value, String forceType) {
+    public JsonOption(Object value, String forcedType) {
         this.value = value;
-        this.type = forceType;
+        this.type = forcedType;
     }
 
     /**
