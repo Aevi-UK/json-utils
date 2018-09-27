@@ -14,15 +14,15 @@ apply from: '../publish-repo.gradle'
 apply from: '../java-provided.gradle'
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    provided domainDependencies.androidMockable
-    compile domainDependencies.gson
+    compileOnly domainDependencies.androidMockable
+    implementation domainDependencies.gson
 
-    testCompile domainDependencies.androidMockable
-    testCompile testDependencies.junit
-    testCompile testDependencies.mockito
-    testCompile testDependencies.assertJ
+    testImplementation domainDependencies.androidMockable
+    testImplementation testDependencies.junit
+    testImplementation testDependencies.mockito
+    testImplementation testDependencies.assertJ
 }
 
 javadoc {
