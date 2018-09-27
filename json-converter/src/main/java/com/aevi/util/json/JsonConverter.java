@@ -18,8 +18,12 @@ import android.graphics.BitmapFactory;
 import android.util.Base64;
 
 import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Type;
 
 /**
@@ -29,24 +33,50 @@ import java.lang.reflect.Type;
  */
 public final class JsonConverter {
 
-    public static String serialize(Jsonable object) {
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(Bitmap.class, new BitmapSerialiser())
-                .create();
-        return gson.toJson(object);
-    }
+    private static final Gson GSON;
 
-    public static JsonElement serializeToTree(Jsonable object) {
-        Gson gson = new GsonBuilder().registerTypeAdapter(Bitmap.class, new BitmapSerialiser()).create();
-        return gson.toJsonTree(object);
-    }
-
-    public static <T extends Jsonable> T deserialize(String json, Class<T> type) throws JsonParseException {
-        Gson gson = new GsonBuilder()
+    static {
+        GSON = new GsonBuilder()
                 .registerTypeAdapter(JsonOption.class, new ExtrasDeserialiser())
                 .registerTypeAdapter(Bitmap.class, new BitmapDeserialiser())
+                .registerTypeAdapter(Bitmap.class, new BitmapSerialiser())
+                .registerTypeAdapterFactory(new PostProcessingHandler())
                 .create();
-        return type.cast(gson.fromJson(json, type));
+    }
+
+    public static String serialize(Object object) {
+        return GSON.toJson(object);
+    }
+
+    public static JsonElement serializeToTree(Object object) {
+        return GSON.toJsonTree(object);
+    }
+
+    public static <T> T deserialize(String json, Class<T> type) throws JsonParseException {
+        return type.cast(GSON.fromJson(json, type));
+    }
+
+    private static class PostProcessingHandler implements TypeAdapterFactory {
+
+        @Override
+        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+            final TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
+            return new TypeAdapter<T>() {
+                @Override
+                public void write(JsonWriter out, T value) throws IOException {
+                    delegate.write(out, value);
+                }
+
+                @Override
+                public T read(JsonReader in) throws IOException {
+                    T object = delegate.read(in);
+                    if (object instanceof JsonPostProcessing) {
+                        ((JsonPostProcessing) object).onJsonDeserialisationCompleted();
+                    }
+                    return object;
+                }
+            };
+        }
     }
 
     private static class BitmapSerialiser implements JsonSerializer<Bitmap> {
