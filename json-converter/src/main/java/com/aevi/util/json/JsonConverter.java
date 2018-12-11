@@ -24,7 +24,15 @@ import com.google.gson.stream.JsonWriter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class contains a number of useful serialiser/deserialiser implementations to handle the objects in this library.
@@ -42,6 +50,15 @@ public final class JsonConverter {
                 .registerTypeAdapter(Bitmap.class, new BitmapSerialiser())
                 .registerTypeAdapterFactory(new PostProcessingHandler())
                 .create();
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.METHOD) //can use in method only.
+    public @interface ExposeMethod {
+        /**
+         * @return The name of the field to store the serialized result of the method
+         */
+        String value();
     }
 
     public static String serialize(Object object) {
@@ -63,8 +80,36 @@ public final class JsonConverter {
             final TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
             return new TypeAdapter<T>() {
                 @Override
-                public void write(JsonWriter out, T value) throws IOException {
-                    delegate.write(out, value);
+                public void write(JsonWriter out, T src) throws IOException {
+                    JsonElement element = delegate.toJsonTree(src);
+
+                    if(element.isJsonObject()) {
+                        JsonObject object = (JsonObject)element;
+                        for (Method m : getAnnotatedMembers(src.getClass())) {
+                            try {
+                                m.setAccessible(true);
+                                Object value = m.invoke(src);
+                                object.add(m.getAnnotation(ExposeMethod.class).value(), GSON.toJsonTree(value));
+                            } catch (InvocationTargetException | IllegalAccessException e) {
+                                // fall thru...
+                                System.out.println(e.getMessage());
+                            }
+                        }
+                        GSON.toJson(object, out);
+                    } else {
+                        delegate.write(out, src);
+                    }
+                }
+
+                private Method[] getAnnotatedMembers(Class<?> jsonable) {
+                    Method[] methods = jsonable.getMethods();
+                    List<Method> annotated = new ArrayList<>();
+                    for (Method m : methods) {
+                        if (m.getAnnotation(ExposeMethod.class) != null) {
+                            annotated.add(m);
+                        }
+                    }
+                    return annotated.toArray(new Method[annotated.size()]);
                 }
 
                 @Override
