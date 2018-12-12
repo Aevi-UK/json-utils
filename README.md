@@ -32,6 +32,42 @@ To use these features, have your models implement `Jsonable` or `Sendable`.
 
 For collections, `JsonableList` or `JsonableMap` may be used.
 
+# Exposed methods
+
+This library makes use of GSON for the serialisation to/from JSON. Therefore, only field values will be exported in your serialised objects.
+
+This library contains an annotation that can be used to expose method data in your JSON as well.
+
+```
+    class Amounts {
+        String currency = "GBP";
+        long baseAmount = 10;
+        long otherAmount = 5;
+
+        @JsonConverter.ExposeMethod(value="totalAmount")
+        public long getTotalAmount() {
+            return baseAmount + otherAmount;
+        }
+    }
+```
+
+The example above will export the following JSON which includes the totalAmount parameter
+
+```
+{
+  currency: "GBP",
+  baseAmount: 10,
+  otherAmount: 5,
+  totalAmount: 15
+}
+```
+
+getting data from exposed methods requires extra processing on behalf of the serialisation mechanism, therefore in order
+to serialise with exposed methods you must call `JsonConverter.serializeWithExposedMethods(object)`
+
+When deserialising your the JSON data above the `totalAmount` field will be ignored.
+
+
 # Binaries
 
 In your main gradle.build you'll need to include our public bintray in your main
