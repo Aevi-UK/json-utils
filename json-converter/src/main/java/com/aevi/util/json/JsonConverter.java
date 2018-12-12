@@ -42,6 +42,7 @@ import java.util.List;
 public final class JsonConverter {
 
     private static final Gson GSON;
+    private static final Gson GSON_WITH_METHODS;
 
     static {
         GSON = new GsonBuilder()
@@ -49,6 +50,12 @@ public final class JsonConverter {
                 .registerTypeAdapter(Bitmap.class, new BitmapDeserialiser())
                 .registerTypeAdapter(Bitmap.class, new BitmapSerialiser())
                 .registerTypeAdapterFactory(new PostProcessingHandler())
+                .create();
+        GSON_WITH_METHODS = new GsonBuilder()
+                .registerTypeAdapter(JsonOption.class, new ExtrasDeserialiser())
+                .registerTypeAdapter(Bitmap.class, new BitmapDeserialiser())
+                .registerTypeAdapter(Bitmap.class, new BitmapSerialiser())
+                .registerTypeAdapterFactory(new ExposedMethodProcessingHandler())
                 .create();
     }
 
@@ -65,6 +72,10 @@ public final class JsonConverter {
         return GSON.toJson(object);
     }
 
+    public static String serializeWithExposedMethods(Object object) {
+        return GSON_WITH_METHODS.toJson(object);
+    }
+
     public static JsonElement serializeToTree(Object object) {
         return GSON.toJsonTree(object);
     }
@@ -73,8 +84,7 @@ public final class JsonConverter {
         return type.cast(GSON.fromJson(json, type));
     }
 
-    private static class PostProcessingHandler implements TypeAdapterFactory {
-
+    private static class ExposedMethodProcessingHandler implements TypeAdapterFactory {
         @Override
         public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
             final TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
@@ -89,27 +99,45 @@ public final class JsonConverter {
                             try {
                                 m.setAccessible(true);
                                 Object value = m.invoke(src);
-                                object.add(m.getAnnotation(ExposeMethod.class).value(), GSON.toJsonTree(value));
+                                object.add(m.getAnnotation(com.aevi.util.json.JsonConverter.ExposeMethod.class).value(), GSON_WITH_METHODS.toJsonTree(value));
                             } catch (InvocationTargetException | IllegalAccessException e) {
                                 // fall thru...
-                                System.out.println(e.getMessage());
                             }
                         }
-                        GSON.toJson(object, out);
+                        GSON_WITH_METHODS.toJson(object, out);
                     } else {
                         delegate.write(out, src);
                     }
+                }
+
+                @Override
+                public T read(JsonReader in) throws IOException {
+                    return delegate.read(in);
                 }
 
                 private Method[] getAnnotatedMembers(Class<?> jsonable) {
                     Method[] methods = jsonable.getMethods();
                     List<Method> annotated = new ArrayList<>();
                     for (Method m : methods) {
-                        if (m.getAnnotation(ExposeMethod.class) != null) {
+                        if (m.getAnnotation(com.aevi.util.json.JsonConverter.ExposeMethod.class) != null) {
                             annotated.add(m);
                         }
                     }
                     return annotated.toArray(new Method[annotated.size()]);
+                }
+            };
+        }
+    }
+
+    private static class PostProcessingHandler implements TypeAdapterFactory {
+
+        @Override
+        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+            final TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
+            return new TypeAdapter<T>() {
+                @Override
+                public void write(JsonWriter out, T src) throws IOException {
+                    delegate.write(out, src);
                 }
 
                 @Override
