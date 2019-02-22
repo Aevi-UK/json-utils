@@ -28,7 +28,7 @@ dependencies {
 javadoc {
     source = sourceSets.main.allJava
     destinationDir = file("../javadocs/json-converter")
-    classpath = files(configurations.compile, configurations.provided)
+    classpath = files(sourceSets.main.compileClasspath, sourceSets.main.runtimeClasspath)
     title = "Json Converter"
     options.memberLevel = JavadocMemberLevel.PUBLIC
 }
