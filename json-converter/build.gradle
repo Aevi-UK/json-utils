@@ -40,7 +40,8 @@ def siteUrl = 'https://github.com/Aevi-UK/json-utils'
 def gitUrl = 'https://github.com/Aevi-UK/json-utils.git'
 
 bintray {
-    configurations = ['archives']
+    publications = ['apiJar']
+    override = true
 
     pkg {
         repo = 'aevi-uk'
