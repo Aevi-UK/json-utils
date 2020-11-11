@@ -1,7 +1,7 @@
 plugins {
-    id "com.jfrog.bintray" version "1.7.3"
+    id "com.jfrog.bintray" version "1.8.1"
 }
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
@@ -28,7 +28,7 @@ dependencies {
 javadoc {
     source = sourceSets.main.allJava
     destinationDir = file("../javadocs/json-converter")
-    classpath = files(configurations.compile, configurations.provided)
+    classpath = files(sourceSets.main.compileClasspath, sourceSets.main.runtimeClasspath)
     title = "Json Converter"
     options.memberLevel = JavadocMemberLevel.PUBLIC
 }
@@ -40,7 +40,8 @@ def siteUrl = 'https://github.com/Aevi-UK/json-utils'
 def gitUrl = 'https://github.com/Aevi-UK/json-utils.git'
 
 bintray {
-    configurations = ['archives']
+    publications = ['apiJar']
+    override = true
 
     pkg {
         repo = 'aevi-uk'
