@@ -44,6 +44,8 @@ bintray {
     override = true
 
     pkg {
+        dryRun = false
+        publish = true
         repo = 'aevi-uk'
         name = 'json-converter'
         userOrg = 'aevi'

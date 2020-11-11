@@ -80,6 +80,10 @@ public final class JsonConverter {
         return GSON.toJsonTree(object);
     }
 
+    public static JsonElement serializeToTreeWithExposedMethods(Object object) {
+        return GSON_WITH_METHODS.toJsonTree(object);
+    }
+
     public static <T> T deserialize(String json, Class<T> type) throws JsonParseException {
         return type.cast(GSON.fromJson(json, type));
     }
