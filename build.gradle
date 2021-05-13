@@ -1,25 +1,24 @@
-version = "1.1.1-SNAPSHOT"
-
-allprojects {
-
-    project.ext {
-        apiVersion = rootProject.version
-    }
-
+buildscript {
     repositories {
-        mavenLocal()
-        jcenter()
-        mavenCentral()
-        google()
         maven {
-            url "http://sdk-public-artifacts.s3-website-eu-west-1.amazonaws.com/maven2"
+            name = "github-aevi-uk"
+            url = uri("https://maven.pkg.github.com/aevi-uk/gradle-scripts")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR") ?: gh_username
+                password = System.getenv("GITHUB_TOKEN") ?: gh_token
+            }
         }
     }
+    dependencies {
+        classpath 'com.aevi.sdk.build:gradle-scripts:1.0.10'
+    }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
-    delete 'documentation/public'
+ext.gradleScript = { path ->
+    return rootProject.buildscript.classLoader.getResource(path).toURI()
 }
+
+apply from: gradleScript('root/common-tasks.gradle')
+apply from: gradleScript('root/repositories.gradle')
 
 apply from: 'dependencies.gradle'
