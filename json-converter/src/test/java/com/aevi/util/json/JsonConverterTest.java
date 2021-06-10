@@ -45,6 +45,16 @@ public class JsonConverterTest {
             return new Amounts();
         }
 
+        @JsonConverter.ExposeMethod(value = "primitiveExtra")
+        public JsonOption getPrimitiveExtra() {
+            return new JsonOption("blop");
+        }
+
+        @JsonConverter.ExposeMethod(value = "innerExtra")
+        public JsonOption getInnerExtra() {
+            return new JsonOption(new InnerBloop());
+        }
+
         @Override
         public String toJson() {
             return JsonConverter.serialize(this);
@@ -81,5 +91,14 @@ public class JsonConverterTest {
         assertThat(objWithOut.has("amounts")).isFalse();
         assertThat(objWithOut.has("sausage")).isFalse();
 
+    }
+
+    @Test
+    public void checkOptionSerailization() {
+        String json = new TestClass().toJsonWithMethods();
+        TestClass obj = JsonConverter.deserialize(json, TestClass.class);
+        assertThat(obj.getPrimitiveExtra().getType()).isEqualTo("String");
+        assertThat(obj.getPrimitiveExtra().getValue()).isEqualTo("blop");
+        assertThat(obj.getInnerExtra().getValue()).isInstanceOf(InnerBloop.class);
     }
 }

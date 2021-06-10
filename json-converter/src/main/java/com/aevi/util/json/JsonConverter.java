@@ -97,8 +97,8 @@ public final class JsonConverter {
                 public void write(JsonWriter out, T src) throws IOException {
                     JsonElement element = delegate.toJsonTree(src);
 
-                    if(element.isJsonObject()) {
-                        JsonObject object = (JsonObject)element;
+                    if (element.isJsonObject()) {
+                        JsonObject object = (JsonObject) element;
                         for (Method m : getAnnotatedMembers(src.getClass())) {
                             try {
                                 m.setAccessible(true);

@@ -26,7 +26,7 @@ public class JsonOption implements Jsonable {
 
     public JsonOption(Object value) {
         this.value = value;
-        this.type = value.getClass().getName();
+        this.type = value.getClass().getSimpleName();
     }
 
     public JsonOption(Object value, String forcedType) {
@@ -67,7 +67,6 @@ public class JsonOption implements Jsonable {
             return false;
         }
         return type != null ? type.equals(that.type) : that.type == null;
-
     }
 
     @Override
