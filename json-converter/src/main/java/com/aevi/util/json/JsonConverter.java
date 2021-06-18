@@ -181,13 +181,7 @@ public final class JsonConverter {
         public JsonOption deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
             JsonObject obj = json.getAsJsonObject();
             JsonElement entry = obj.get("value");
-            String className = obj.get("type").getAsString();
-            try {
-                Class clazz = Class.forName(className);
-                return new JsonOption(context.deserialize(entry, clazz));
-            } catch (ClassNotFoundException e) {
-                return new JsonOption(entry, className);
-            }
+            return new JsonOption(entry);
         }
     }
 

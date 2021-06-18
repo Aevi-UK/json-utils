@@ -103,7 +103,6 @@ public class JsonConverterTest {
     public void checkOptionSerialization() {
         String json = new TestClass().toJsonWithMethods();
         TestClass obj = JsonConverter.deserialize(json, TestClass.class);
-        assertThat(obj.getPrimitiveExtra().getType()).isEqualTo("string");
         assertThat(obj.getPrimitiveExtra().getValue()).isEqualTo("blop");
         assertThat(obj.getInnerExtra().getValue()).isInstanceOf(InnerBloop.class);
     }

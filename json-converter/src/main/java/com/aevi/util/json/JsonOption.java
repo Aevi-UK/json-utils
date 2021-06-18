@@ -13,25 +13,17 @@
  */
 package com.aevi.util.json;
 
+import java.util.Objects;
+
 /**
- * This class allows you to store a java Object of any type in JSON and restore it again afterwards to the correct Class type.
- * <p>
- * If serialised to JSON the JSON produced contains the objects type (class) in a parameter called `type` and the objects data JSON serialised into
- * the `value` parameter.
+ * This class allows you to store a java Object of any type in JSON and restore it again afterwards.
  */
 public class JsonOption implements Jsonable {
 
     private final Object value;
-    private final String type;
 
     public JsonOption(Object value) {
         this.value = value;
-        this.type = value.getClass().getSimpleName().toLowerCase();
-    }
-
-    public JsonOption(Object value, String forcedType) {
-        this.value = value;
-        this.type = forcedType;
     }
 
     /**
@@ -41,38 +33,20 @@ public class JsonOption implements Jsonable {
         return value;
     }
 
-    /**
-     * @return The source objects type/class
-     */
-    public String getType() {
-        return type;
-    }
-
     public String toJson() {
         return JsonConverter.serialize(this);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         JsonOption that = (JsonOption) o;
-
-        if (value != null ? !value.equals(that.value) : that.value != null) {
-            return false;
-        }
-        return type != null ? type.equals(that.type) : that.type == null;
+        return Objects.equals(value, that.value);
     }
 
     @Override
     public int hashCode() {
-        int result = value != null ? value.hashCode() : 0;
-        result = 31 * result + (type != null ? type.hashCode() : 0);
-        return result;
+        return Objects.hash(value);
     }
 }
