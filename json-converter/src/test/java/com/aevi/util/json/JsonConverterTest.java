@@ -3,8 +3,14 @@ package com.aevi.util.json;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 
 import org.junit.Test;
+
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
@@ -94,11 +100,30 @@ public class JsonConverterTest {
     }
 
     @Test
-    public void checkOptionSerailization() {
+    public void checkOptionSerialization() {
         String json = new TestClass().toJsonWithMethods();
         TestClass obj = JsonConverter.deserialize(json, TestClass.class);
         assertThat(obj.getPrimitiveExtra().getType()).isEqualTo("string");
         assertThat(obj.getPrimitiveExtra().getValue()).isEqualTo("blop");
         assertThat(obj.getInnerExtra().getValue()).isInstanceOf(InnerBloop.class);
+    }
+
+    @Test
+    public void checkOptionTypeDeserialization() {
+        Map<String, Integer> map = new HashMap<>();
+        map.put("test", 2);
+        String json = JsonConverter.serialize(map);
+        Type type = new TypeToken<Map<String, Integer>>(){}.getType();
+        Map<String, Integer> obj = JsonConverter.deserialize(json, type);
+        assertThat(obj).hasSize(1).containsOnlyKeys("test").containsValues(2);
+    }
+
+    @Test(expected = JsonSyntaxException.class)
+    public void checkWrongTypeDeserialization() {
+        Map<String, String> map = new HashMap<>();
+        map.put("test", "hello");
+        String json = JsonConverter.serialize(map);
+        Type type = new TypeToken<Map<String, Integer>>(){}.getType();
+        JsonConverter.deserialize(json, type);
     }
 }

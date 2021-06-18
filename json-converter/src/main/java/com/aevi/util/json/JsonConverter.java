@@ -88,6 +88,10 @@ public final class JsonConverter {
         return type.cast(GSON.fromJson(json, type));
     }
 
+    public static <T> T deserialize(String json, Type type) throws JsonParseException {
+        return GSON.fromJson(json, type);
+    }
+
     private static class ExposedMethodProcessingHandler implements TypeAdapterFactory {
         @Override
         public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
